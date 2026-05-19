@@ -1,0 +1,8 @@
+[project]
+name = "career-ops-robot-tests"
+version = "0.1.0"
+description = "Robot Framework black-box characterization tests for career-ops"
+requires-python = ">=3.12"
+dependencies = [
+    "robotframework>=7.0",
+]
