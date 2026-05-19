@@ -1,0 +1,15 @@
+[project]
+name = "career-ops-cli"
+version = "1.9.0"
+requires-python = ">=3.12"
+dependencies = [
+    "career-ops-core",
+    "typer>=0.12",
+    "rich>=13.7",
+]
+
+[project.scripts]
+career-ops = "career_ops_cli.main:app"
+
+[tool.uv.sources]
+career-ops-core = { workspace = true }

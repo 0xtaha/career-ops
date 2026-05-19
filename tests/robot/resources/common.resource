@@ -7,20 +7,17 @@ Library    Collections
 *** Variables ***
 # Three levels up from tests/robot/resources/ → project root
 ${PROJECT_ROOT}    ${CURDIR}/../../..
-${NODE}            node
+${PYTHON}          python
 ${FIXTURES}        ${CURDIR}/fixtures
 
 *** Keywords ***
 New Test Workspace
-    [Documentation]    Copies scripts and system files to an isolated temp directory.
-    ...    Scripts resolve data paths via import.meta.url (relative to the script
-    ...    file itself), so copying them gives full filesystem isolation.
+    [Documentation]    Creates an isolated temp directory with the standard directory
+    ...    structure for career-ops. The installed career-ops-cli package is used via
+    ...    the --root flag, so no scripts need to be copied.
     ${tmp}=    Evaluate    __import__('tempfile').mkdtemp(prefix='career_ops_test_')
-    Copy Files    ${PROJECT_ROOT}/*.mjs    ${tmp}/
     Copy Directory    ${PROJECT_ROOT}/templates    ${tmp}/templates
     Copy Directory    ${PROJECT_ROOT}/modes    ${tmp}/modes
-    Copy Directory    ${PROJECT_ROOT}/providers    ${tmp}/providers
-    Copy File    ${CURDIR}/liveness_wrapper.mjs    ${tmp}/liveness_wrapper.mjs
     ${version_exists}=    Run Keyword And Return Status
     ...    File Should Exist    ${PROJECT_ROOT}/VERSION
     IF    ${version_exists}
@@ -39,9 +36,9 @@ Remove Test Workspace
     Remove Directory    ${workspace}    recursive=True
 
 Run Script
-    [Arguments]    ${workspace}    ${script}    @{args}
-    ${result}=    Run Process    ${NODE}    ${workspace}/${script}    @{args}
-    ...    cwd=${workspace}    stdout=PIPE    stderr=PIPE
+    [Arguments]    ${workspace}    ${command}    @{args}
+    ${result}=    Run Process    career-ops    --root    ${workspace}
+    ...    ${command}    @{args}    stdout=PIPE    stderr=PIPE
     RETURN    ${result}
 
 Script Should Exit 0

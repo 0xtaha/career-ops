@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation    Black-box characterization tests for normalize-statuses.mjs.
+Documentation    Black-box characterization tests for normalize.
 ...
 ...    Captures the canonicalization rules: markdown bold stripping, Spanish alias
 ...    mapping, date removal, and alias-to-English conversion. Each test uses an
@@ -14,7 +14,7 @@ Workspace With Noncanonical Tracker
 
 Run Normalize
     [Arguments]    ${ws}    @{extra_args}
-    ${r}=    Run Script    ${ws}    normalize-statuses.mjs    @{extra_args}
+    ${r}=    Run Script    ${ws}    normalize    @{extra_args}
     RETURN    ${r}
 
 *** Test Cases ***

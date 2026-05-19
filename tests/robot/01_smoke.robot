@@ -1,7 +1,7 @@
 *** Settings ***
-Documentation    Smoke tests: syntax validity and graceful behavior with no user data.
-...              These tests run against the real project scripts via node --check (no execution)
-...              and against isolated workspaces to verify scripts don't crash on missing data.
+Documentation    Smoke tests: importability and graceful behavior with no user data.
+...              These tests verify each Python module imports without error
+...              and that CLI commands exit cleanly on a fresh (empty) workspace.
 Resource         resources/common.resource
 
 Suite Setup      Suite Setup
@@ -15,93 +15,81 @@ Suite Setup
     ${ws}=    New Test Workspace
     Set Suite Variable    ${WS}    ${ws}
 
+Import Should Succeed
+    [Arguments]    ${module}
+    ${r}=    Run Process    ${PYTHON}    -c    import ${module}
+    ...    stdout=PIPE    stderr=PIPE
+    Should Be Equal As Integers    ${r.rc}    0
+    ...    msg=Import failed for ${module}\nSTDERR:\n${r.stderr}
+
 *** Test Cases ***
-# ── Syntax checks (node --check reads the file without executing it) ──────────
+# ── Module import checks (replace node --check) ──────────────────────────────
 
-Syntax - normalize-statuses.mjs
-    ${r}=    Run Process    ${NODE}    --check    ${PROJECT_ROOT}/normalize-statuses.mjs
-    Script Should Exit 0    ${r}
+Import - career_ops_core.scripts.normalize_statuses
+    Import Should Succeed    career_ops_core.scripts.normalize_statuses
 
-Syntax - merge-tracker.mjs
-    ${r}=    Run Process    ${NODE}    --check    ${PROJECT_ROOT}/merge-tracker.mjs
-    Script Should Exit 0    ${r}
+Import - career_ops_core.scripts.merge_tracker
+    Import Should Succeed    career_ops_core.scripts.merge_tracker
 
-Syntax - dedup-tracker.mjs
-    ${r}=    Run Process    ${NODE}    --check    ${PROJECT_ROOT}/dedup-tracker.mjs
-    Script Should Exit 0    ${r}
+Import - career_ops_core.scripts.dedup_tracker
+    Import Should Succeed    career_ops_core.scripts.dedup_tracker
 
-Syntax - verify-pipeline.mjs
-    ${r}=    Run Process    ${NODE}    --check    ${PROJECT_ROOT}/verify-pipeline.mjs
-    Script Should Exit 0    ${r}
+Import - career_ops_core.scripts.verify_pipeline
+    Import Should Succeed    career_ops_core.scripts.verify_pipeline
 
-Syntax - liveness-core.mjs
-    ${r}=    Run Process    ${NODE}    --check    ${PROJECT_ROOT}/liveness-core.mjs
-    Script Should Exit 0    ${r}
+Import - career_ops_core.scripts.liveness_core
+    Import Should Succeed    career_ops_core.scripts.liveness_core
 
-Syntax - scan.mjs
-    ${r}=    Run Process    ${NODE}    --check    ${PROJECT_ROOT}/scan.mjs
-    Script Should Exit 0    ${r}
+Import - career_ops_core.scripts.scan
+    Import Should Succeed    career_ops_core.scripts.scan
 
-Syntax - check-liveness.mjs
-    ${r}=    Run Process    ${NODE}    --check    ${PROJECT_ROOT}/check-liveness.mjs
-    Script Should Exit 0    ${r}
+Import - career_ops_core.scripts.check_liveness
+    Import Should Succeed    career_ops_core.scripts.check_liveness
 
-Syntax - analyze-patterns.mjs
-    ${r}=    Run Process    ${NODE}    --check    ${PROJECT_ROOT}/analyze-patterns.mjs
-    Script Should Exit 0    ${r}
+Import - career_ops_core.scripts.analyze_patterns
+    Import Should Succeed    career_ops_core.scripts.analyze_patterns
 
-Syntax - followup-cadence.mjs
-    ${r}=    Run Process    ${NODE}    --check    ${PROJECT_ROOT}/followup-cadence.mjs
-    Script Should Exit 0    ${r}
+Import - career_ops_core.scripts.followup_cadence
+    Import Should Succeed    career_ops_core.scripts.followup_cadence
 
-Syntax - update-system.mjs
-    ${r}=    Run Process    ${NODE}    --check    ${PROJECT_ROOT}/update-system.mjs
-    Script Should Exit 0    ${r}
+Import - career_ops_core.scripts.update_system
+    Import Should Succeed    career_ops_core.scripts.update_system
 
-Syntax - doctor.mjs
-    ${r}=    Run Process    ${NODE}    --check    ${PROJECT_ROOT}/doctor.mjs
-    Script Should Exit 0    ${r}
+Import - career_ops_core.scripts.doctor
+    Import Should Succeed    career_ops_core.scripts.doctor
 
-Syntax - cv-sync-check.mjs
-    ${r}=    Run Process    ${NODE}    --check    ${PROJECT_ROOT}/cv-sync-check.mjs
-    Script Should Exit 0    ${r}
+Import - career_ops_core.scripts.cv_sync_check
+    Import Should Succeed    career_ops_core.scripts.cv_sync_check
 
-Syntax - generate-pdf.mjs
-    ${r}=    Run Process    ${NODE}    --check    ${PROJECT_ROOT}/generate-pdf.mjs
-    Script Should Exit 0    ${r}
-
-Syntax - generate-latex.mjs
-    ${r}=    Run Process    ${NODE}    --check    ${PROJECT_ROOT}/generate-latex.mjs
-    Script Should Exit 0    ${r}
+Import - career_ops_core.scripts.generate_pdf
+    Import Should Succeed    career_ops_core.scripts.generate_pdf
 
 # ── Graceful behavior with no user data ──────────────────────────────────────
 
-Graceful - normalize-statuses exits 0 with no applications.md
-    # Workspace has no data/applications.md — script should report nothing to do
-    ${r}=    Run Script    ${WS}    normalize-statuses.mjs
+Graceful - normalize exits 0 with no applications.md
+    # Workspace has no data/applications.md — command should report nothing to do
+    ${r}=    Run Script    ${WS}    normalize
     Script Should Exit 0    ${r}
     Should Contain    ${r.stdout}    Nothing to normalize
 
-Graceful - merge-tracker exits 0 with no TSV files
+Graceful - merge exits 0 with no TSV files
     # Workspace has empty batch/tracker-additions/ — nothing to merge
-    ${r}=    Run Script    ${WS}    merge-tracker.mjs
+    ${r}=    Run Script    ${WS}    merge
     Script Should Exit 0    ${r}
     Should Contain    ${r.stdout}    No pending additions
 
-Graceful - dedup-tracker exits 0 with no applications.md
-    ${r}=    Run Script    ${WS}    dedup-tracker.mjs
+Graceful - dedup exits 0 with no applications.md
+    ${r}=    Run Script    ${WS}    dedup
     Script Should Exit 0    ${r}
     Should Contain    ${r.stdout}    Nothing to dedup
 
-Graceful - verify-pipeline exits 0 with no applications.md
-    ${r}=    Run Script    ${WS}    verify-pipeline.mjs
+Graceful - verify exits 0 with no applications.md
+    ${r}=    Run Script    ${WS}    verify
     Script Should Exit 0    ${r}
     Should Contain    ${r.stdout}    No applications.md found
 
-Graceful - update-system check exits without crashing
+Graceful - update check exits without crashing
     # Exits 0 regardless of network state (up-to-date / offline / dismissed)
-    ${r}=    Run Script    ${WS}    update-system.mjs    check
-    # rc is 0 for all non-error outcomes; only crash = unexpected
-    Should Not Contain    ${r.stderr}    SyntaxError
-    Should Not Contain    ${r.stderr}    TypeError
-    Should Not Contain    ${r.stderr}    ReferenceError
+    ${r}=    Run Script    ${WS}    update    check
+    Should Not Contain    ${r.stderr}    Traceback
+    Should Not Contain    ${r.stderr}    ImportError

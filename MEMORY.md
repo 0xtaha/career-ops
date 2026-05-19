@@ -8,27 +8,45 @@
 
 | Item | Value |
 |------|-------|
-| **Version** | 1.8.0 |
+| **Version** | 1.9.0-dev |
 | **Branch** | `feature/migrating-to-python` |
 | **Base** | `main` |
 | **Date** | 2026-05-19 |
+| **Migration** | Phase 1 complete (core data layer + 4 CLI commands) |
 
 ---
 
 ## Active Branch: `feature/migrating-to-python`
 
-**Purpose:** Adds a Robot Framework black-box characterization test suite in `tests/robot/`.  The branch name reflects the addition of Python tooling (via `uv`) to an otherwise Node.js + Go project.
+**Purpose:** Full migration from Node.js `.mjs` scripts + Go TUI → Python uv workspace + React frontend.
+Migration plan: `.claude/plans/imperative-questing-dewdrop.md`
 
-**Changes vs `main`:**
-- `CLAUDE.md` — updated with test commands and references to `ARCHITECTURE.md` / `MEMORY.md`
-- `ARCHITECTURE.md` — new file at project root (developer/contributor architecture reference)
-- `MEMORY.md` — this file (new)
-- `tests/robot/` — new directory:
-  - 6 Robot Framework test suites (64 tests total)
-  - `pyproject.toml` + `uv.lock` — Python dependency management
-  - `resources/common.resource` — shared keywords and workspace isolation helper
-  - `resources/liveness_wrapper.mjs` — CLI shim for `classifyLiveness()`
-  - `resources/fixtures/` — 4 fixture `.md` files + 2 fixture `.tsv` files
+### Phase 1 — Complete ✅
+- `pyproject.toml` — uv workspace root (members: core, cli, api)
+- `packages/core/` — `career-ops-core` package:
+  - `career_ops_core/config.py` — `ProjectConfig` with all path resolution
+  - `career_ops_core/data/` — states.py, normalize.py, applications.py, pipeline_md.py, scan_history.py
+  - `career_ops_core/scripts/` — merge_tracker.py, normalize_statuses.py, dedup_tracker.py, verify_pipeline.py
+- `packages/cli/` — `career-ops-cli` package (Typer, `career-ops` entrypoint)
+  - `merge`, `normalize`, `dedup`, `verify` commands working
+  - Stub commands for Phase 2 (pdf, scan, liveness, patterns, followup, doctor, sync-check, update, gemini-eval)
+- `tests/robot/` updated:
+  - `common.resource` — `Run Script` now calls `career-ops --root ${ws} {cmd}` (not `node {script}`)
+  - `01_smoke.robot` — Python import checks replace `node --check` syntax checks
+  - Suites 02-05 — script names updated to CLI command names (merge/normalize/dedup/verify)
+  - `pyproject.toml` — `career-ops-cli` added as workspace dep
+
+### Phase 2 — Pending
+Port remaining scripts + providers; complete CLI.
+
+### Phase 3 — Pending
+FastAPI server package.
+
+### Phase 4 — Pending
+React frontend + remove Node.js/Go code.
+
+### Phase 5 — Parallel with 2-4
+RF test hardening (all 6 suites passing).
 
 ---
 

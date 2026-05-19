@@ -1,6 +1,8 @@
 # Architecture
 
-> **Conceptual model:** career-ops is an **AI prompt + mode system**, not a traditional application. The runtime is the AI agent (Claude Code, Gemini CLI, Codex, etc.); the `.mjs` scripts are supporting utilities that handle data plumbing. The intelligence lives in `modes/`.
+> **Conceptual model:** career-ops is an **AI prompt + mode system**, not a traditional application. The runtime is the AI agent (Claude Code, Gemini CLI, Codex, etc.); the pipeline scripts handle data plumbing. The intelligence lives in `modes/`.
+
+> **Migration status (Phase 1 complete):** The `.mjs` scripts are being replaced by a uv Python workspace (`packages/core`, `packages/cli`, `packages/api`) and a React frontend (`frontend/`). See the migration plan at `.claude/plans/imperative-questing-dewdrop.md`. Phase 1 delivers the core data layer and four CLI commands (`merge`, `normalize`, `dedup`, `verify`). The `.mjs` files and Go dashboard remain on the branch until Phase 4.
 
 ---
 
@@ -125,6 +127,26 @@ Full contract: [`DATA_CONTRACT.md`](DATA_CONTRACT.md)
 
 ```
 career-ops/
+├── pyproject.toml          # uv workspace root (no code — declares members)
+├── packages/
+│   ├── core/               # career-ops-core: shared business logic
+│   │   └── career_ops_core/
+│   │       ├── config.py                  # ProjectConfig — all path resolution
+│   │       ├── data/                      # Pure parsers/writers (no I/O side effects)
+│   │       │   ├── applications.py        # ApplicationRow, parse_applications(), write_applications()
+│   │       │   ├── states.py              # CANONICAL_STATUSES, ALIASES, normalize_status()
+│   │       │   ├── normalize.py           # ROLE_STOPWORDS, role_fuzzy_match()
+│   │       │   ├── pipeline_md.py         # pipeline.md reader/writer
+│   │       │   └── scan_history.py        # scan-history.tsv reader/writer
+│   │       ├── scripts/                   # Business logic (1:1 port of .mjs scripts)
+│   │       │   ├── merge_tracker.py       # merge() + _detect_column_order()
+│   │       │   ├── normalize_statuses.py
+│   │       │   ├── dedup_tracker.py
+│   │       │   └── verify_pipeline.py
+│   │       └── providers/                 # Portal scanner backends (Phase 2)
+│   ├── cli/                # career-ops-cli: Typer CLI (depends on core)
+│   │   └── career_ops_cli/main.py         # Typer app — all commands + --root global flag
+│   └── api/                # career-ops-api: FastAPI server (Phase 3)
 ├── modes/                  # Mode files (system layer)
 │   ├── _shared.md          # Scoring engine — read on every evaluation
 │   ├── _profile.md         # User archetypes — GITIGNORED (user layer)

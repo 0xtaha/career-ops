@@ -14,29 +14,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ```bash
-# Run the full test suite (63+ checks: syntax, scripts, data contract, personal data leak, mode integrity)
-node test-all.mjs
+# Install all packages (uv workspace — run once from project root)
+uv sync
 
-# Skip the Go dashboard build for a faster run
-node test-all.mjs --quick
+# Core pipeline commands (Python CLI)
+uv run career-ops merge --dry-run        # preview tracker merge
+uv run career-ops normalize --dry-run    # preview status normalization
+uv run career-ops dedup --dry-run        # preview deduplication
+uv run career-ops verify                 # pipeline health check
+uv run career-ops doctor                 # setup validation
+
+# Override project root (useful for testing)
+uv run career-ops verify --root /path/to/workspace
 
 # Robot Framework black-box tests (requires uv; 64 tests covering pipeline scripts)
 cd tests/robot && uv run robot .
+uv run robot 01_smoke.robot             # run one suite
 
-# Build and run the Go TUI dashboard
+# Legacy Node.js test suite (still present on main branch; will be removed in Phase 4)
+node test-all.mjs
+node test-all.mjs --quick               # skip Go dashboard build
+
+# Legacy Go TUI dashboard (will be replaced by React frontend in Phase 4)
 cd dashboard && go build -o career-dashboard .
 ./career-dashboard --path ..
-
-# Setup validation (Node >= 18, Playwright chromium, required files, auto-creates data/output/reports/)
-npm run doctor
-
-# Pipeline health check (statuses, duplicates, broken report links)
-npm run verify
-
-# Run a single script directly
-node verify-pipeline.mjs
-node merge-tracker.mjs --dry-run
-node normalize-statuses.mjs --dry-run
 ```
 
 ## Architecture

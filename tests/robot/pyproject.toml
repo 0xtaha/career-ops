@@ -5,4 +5,8 @@ description = "Robot Framework black-box characterization tests for career-ops"
 requires-python = ">=3.12"
 dependencies = [
     "robotframework>=7.0",
+    "career-ops-cli",
 ]
+
+[tool.uv.sources]
+career-ops-cli = { workspace = true }

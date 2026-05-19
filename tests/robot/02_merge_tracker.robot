@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation    Black-box characterization tests for merge-tracker.mjs.
+Documentation    Black-box characterization tests for merge.
 ...
 ...    Verifies observable behavior: exit codes, stdout messages, file mutations,
 ...    TSV archival, and status normalization. Each test gets an isolated workspace.
@@ -18,7 +18,7 @@ No pending TSVs — exits 0 and reports nothing to merge
     ...                report success without modifying applications.md.
     ${ws}=    Setup Workspace With Tracker
     ${before}=    Get Applications Content    ${ws}
-    ${r}=    Run Script    ${ws}    merge-tracker.mjs
+    ${r}=    Run Script    ${ws}    merge
     Script Should Exit 0    ${r}
     Should Contain    ${r.stdout}    No pending additions
     ${after}=    Get Applications Content    ${ws}
@@ -30,7 +30,7 @@ Valid 9-column TSV — entry appended to applications.md
     ...                into the tracker table and moved to merged/.
     ${ws}=    Setup Workspace With Tracker
     Install Fixture    ${ws}    tracker_valid.tsv    batch/tracker-additions/010-testco.tsv
-    ${r}=    Run Script    ${ws}    merge-tracker.mjs
+    ${r}=    Run Script    ${ws}    merge
     Script Should Exit 0    ${r}
     ${content}=    Get Applications Content    ${ws}
     Should Contain    ${content}    TestCo
@@ -44,7 +44,7 @@ Valid TSV — source file moved to merged/ after merge
     ...                batch/tracker-additions/merged/ and be gone from the root.
     ${ws}=    Setup Workspace With Tracker
     Install Fixture    ${ws}    tracker_valid.tsv    batch/tracker-additions/010-testco.tsv
-    Run Script    ${ws}    merge-tracker.mjs
+    Run Script    ${ws}    merge
     File Should Not Exist    ${ws}/batch/tracker-additions/010-testco.tsv
     File Should Exist        ${ws}/batch/tracker-additions/merged/010-testco.tsv
     [Teardown]    Remove Test Workspace    ${ws}
@@ -54,7 +54,7 @@ Dry-run — exits 0, applications.md unchanged, TSV stays in place
     ${ws}=    Setup Workspace With Tracker
     Install Fixture    ${ws}    tracker_valid.tsv    batch/tracker-additions/010-testco.tsv
     ${before}=    Get Applications Content    ${ws}
-    ${r}=    Run Script    ${ws}    merge-tracker.mjs    --dry-run
+    ${r}=    Run Script    ${ws}    merge    --dry-run
     Script Should Exit 0    ${r}
     ${after}=    Get Applications Content    ${ws}
     Should Be Equal    ${before}    ${after}
@@ -67,7 +67,7 @@ Alias status in TSV — normalized to canonical label in applications.md
     ...                in the resulting tracker table row.
     ${ws}=    Setup Workspace With Tracker
     Install Fixture    ${ws}    tracker_alias_status.tsv    batch/tracker-additions/011-aliasco.tsv
-    Run Script    ${ws}    merge-tracker.mjs
+    Run Script    ${ws}    merge
     ${content}=    Get Applications Content    ${ws}
     Should Contain       ${content}    Applied
     Should Not Contain   ${content}    aplicado
@@ -79,7 +79,7 @@ Merge into pre-existing tracker — row appended, existing rows preserved
     ${ws}=    New Test Workspace
     Install Fixture    ${ws}    applications_canonical.md    data/applications.md
     Install Fixture    ${ws}    tracker_valid.tsv    batch/tracker-additions/010-testco.tsv
-    Run Script    ${ws}    merge-tracker.mjs
+    Run Script    ${ws}    merge
     ${content}=    Get Applications Content    ${ws}
     # Pre-existing entries still present
     Should Contain    ${content}    Acme Corp

@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation    Black-box characterization tests for verify-pipeline.mjs.
+Documentation    Black-box characterization tests for verify.
 ...
 ...    Verifies the seven health checks: canonical statuses, duplicates, report
 ...    links, score format, row format, pending TSVs, and bold in scores.
@@ -9,7 +9,7 @@ Resource         resources/common.resource
 *** Keywords ***
 Run Verify
     [Arguments]    ${ws}
-    ${r}=    Run Script    ${ws}    verify-pipeline.mjs
+    ${r}=    Run Script    ${ws}    verify
     RETURN    ${r}
 
 *** Test Cases ***
