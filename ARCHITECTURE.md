@@ -142,11 +142,21 @@ career-ops/
 │   │       │   ├── merge_tracker.py       # merge() + _detect_column_order()
 │   │       │   ├── normalize_statuses.py
 │   │       │   ├── dedup_tracker.py
-│   │       │   └── verify_pipeline.py
-│   │       └── providers/                 # Portal scanner backends (Phase 2)
+│   │       │   ├── verify_pipeline.py
+│   │       │   ├── scan.py                # importlib provider discovery, async
+│   │       │   ├── liveness_core.py       # classify_liveness() — pure function, no I/O
+│   │       │   ├── check_liveness.py      # Playwright async runner
+│   │       │   ├── generate_pdf.py        # ATS normalization + Playwright PDF
+│   │       │   ├── analyze_patterns.py
+│   │       │   ├── followup_cadence.py
+│   │       │   ├── doctor.py              # Python/uv/Playwright validation
+│   │       │   ├── cv_sync_check.py
+│   │       │   ├── update_system.py       # SYSTEM_PATHS updated to Python/React layout
+│   │       │   └── gemini_eval.py
+│   │       └── providers/                 # Portal scanner backends
 │   ├── cli/                # career-ops-cli: Typer CLI (depends on core)
 │   │   └── career_ops_cli/main.py         # Typer app — all commands + --root global flag
-│   └── api/                # career-ops-api: FastAPI server (Phase 3)
+│   └── api/                # career-ops-api: FastAPI server (Phase 3 — pending)
 ├── modes/                  # Mode files (system layer)
 │   ├── _shared.md          # Scoring engine — read on every evaluation
 │   ├── _profile.md         # User archetypes — GITIGNORED (user layer)

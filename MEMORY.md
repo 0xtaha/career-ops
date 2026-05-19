@@ -12,7 +12,7 @@
 | **Branch** | `feature/migrating-to-python` |
 | **Base** | `main` |
 | **Date** | 2026-05-19 |
-| **Migration** | Phase 1 complete (core data layer + 4 CLI commands) |
+| **Migration** | Phase 2 complete (full core + CLI + all RF suites updated) |
 
 ---
 
@@ -36,8 +36,17 @@ Migration plan: `.claude/plans/imperative-questing-dewdrop.md`
   - Suites 02-05 — script names updated to CLI command names (merge/normalize/dedup/verify)
   - `pyproject.toml` — `career-ops-cli` added as workspace dep
 
-### Phase 2 — Pending
-Port remaining scripts + providers; complete CLI.
+### Phase 2 — Complete ✅
+- `providers/_types.py`, `_http.py`, `greenhouse.py`, `lever.py`, `ashby.py`
+- `scripts/scan.py` — importlib-based provider discovery, async asyncio
+- `scripts/liveness_core.py` — all regex patterns from liveness-core.mjs (pure function)
+- `scripts/check_liveness.py` — async Playwright runner
+- `scripts/generate_pdf.py` — ATS text normalization + Playwright PDF
+- `scripts/analyze_patterns.py`, `followup_cadence.py`
+- `scripts/doctor.py` — checks Python/uv/Playwright (not Node)
+- `scripts/cv_sync_check.py`, `update_system.py` (SYSTEM_PATHS updated), `gemini_eval.py`
+- `tests/robot/resources/liveness_wrapper.py` — replaces liveness_wrapper.mjs
+- `tests/robot/06_liveness_core.robot` — uses Python wrapper; listing-page test corrected to `expired`
 
 ### Phase 3 — Pending
 FastAPI server package.

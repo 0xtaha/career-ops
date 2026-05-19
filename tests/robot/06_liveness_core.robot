@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation    Black-box characterization tests for liveness-core.mjs.
+Documentation    Black-box characterization tests for career_ops_core.scripts.liveness_core.
 ...
 ...    classifyLiveness() is a pure function with no I/O, exercised here through
 ...    liveness_wrapper.mjs (a thin CLI shim).  Tests cover the three result
@@ -20,10 +20,11 @@ Initialize Suite Workspace
 
 *** Keywords ***
 Classify
-    [Documentation]    Runs liveness_wrapper.mjs with the given JSON payload and
-    ...                returns the parsed result string (active/expired/uncertain).
+    [Documentation]    Runs liveness_wrapper.py with the given JSON payload and
+    ...                returns the parsed result object (active/expired/uncertain).
     [Arguments]    ${payload_json}
-    ${r}=    Run Script    ${WS}    liveness_wrapper.mjs    ${payload_json}
+    ${r}=    Run Process    ${PYTHON}    ${CURDIR}/resources/liveness_wrapper.py    ${payload_json}
+    ...    stdout=PIPE    stderr=PIPE
     Script Should Exit 0    ${r}
     ${result_obj}=    Evaluate    __import__('json').loads("""${r.stdout.strip()}""")
     RETURN    ${result_obj}
@@ -95,13 +96,14 @@ Uncertain — rich body but no apply controls and no expired patterns
     ${obj}=    Classify    ${payload}
     Result Should Be    ${obj}    uncertain
 
-Uncertain — listing page pattern (many jobs found)
+Expired — listing page pattern (many jobs found)
     [Documentation]    A page that looks like a job-listing index (e.g. "42 jobs found")
-    ...                rather than a single posting should not be treated as active.
+    ...                matches LISTING_PAGE_PATTERNS and should be classified expired,
+    ...                not active.
     ${payload}=    Set Variable
     ...    {"status":200,"finalUrl":"https://careers.example.com/search","bodyText":"42 jobs found matching your search.","applyControls":[]}
     ${obj}=    Classify    ${payload}
-    Result Should Be    ${obj}    uncertain
+    Result Should Be    ${obj}    expired
 
 Expired result includes non-empty reason string
     [Documentation]    The reason field must explain why the result was reached;
